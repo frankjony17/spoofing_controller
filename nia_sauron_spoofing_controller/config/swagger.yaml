@@ -1,0 +1,191 @@
+swagger: '2.0'
+
+info:
+  version: 0.1.0
+  title: Sauron Spoofing Controller API
+  description: 'Consume the antispoofing APIs and return a final answer.'
+  contact:
+    email: c1310169@interno.bb.com.br
+
+schemes:
+  - http
+
+tags:
+  - name: Images
+    description: 'Image processing operation.'
+  - name: IMA
+    description: 'Protocol number from IMA.'
+
+paths:
+  /spoofing/image/b64:
+    post:
+      tags:
+        - Images
+      description: 'Check if image is spoofed. Send aligned faces, optionally with good quality to improve results.'
+      parameters:
+        - name: b64_image
+          in: body
+          required: true
+          description: 'Image encoded in base64.'
+          schema:
+            $ref: '#/definitions/Image'
+      responses:
+        '200':
+          description: 'OK'
+          schema:
+            $ref: '#/definitions/Response200'
+        '400':
+          description: 'Bad Request, wrong syntax'
+          schema:
+            $ref: '#/definitions/Error400'
+        '400-1':
+          description: 'Bad Request, wrong base64'
+          schema:
+            $ref: '#/definitions/Error400-1'
+        '400-3':
+          description: 'Bad Request, bad image'
+          schema:
+            $ref: '#/definitions/Error400-3'
+        '400-4':
+          description: 'Bad Request, required parameters missing'
+          schema:
+            $ref: '#/definitions/Error400-4'
+        '400-5':
+          description: 'Server not Found, Error connecting to remote APIs, no connection.'
+          schema:
+            $ref: '#/definitions/Error400-5'
+
+  /spoofing/ima/protocol:
+    post:
+      tags:
+        - IMA
+      description: 'Check if the image from IMA is spoofed.'
+      parameters:
+      - in: body
+        name: body
+        description: "Control and request parameters."
+        required: true
+        schema:
+          $ref: "#/definitions/ControlRequestParameters"
+      responses:
+        '200':
+          description: 'OK'
+          schema:
+            $ref: '#/definitions/Response200'
+        '400':
+          description: 'Bad Request, wrong syntax'
+          schema:
+            $ref: '#/definitions/Error400'
+        '400-1':
+          description: 'Bad Request, wrong base64'
+          schema:
+            $ref: '#/definitions/Error400-1'
+        '400-3':
+          description: 'Bad Request, bad image'
+          schema:
+            $ref: '#/definitions/Error400-3'
+        '400-4':
+          description: 'Bad Request, required parameters missing'
+          schema:
+            $ref: '#/definitions/Error400-4'
+        '400-5':
+          description: 'Server not Found, Error connecting to remote APIs, no connection.'
+          schema:
+            $ref: '#/definitions/Error400-5'
+
+definitions:
+  Image:
+    type: object
+    required:
+      - b64_image
+    properties:
+      b64_image:
+        type: string
+        example: 'ZXhhbXBsZQ=='
+
+  Tipo:
+    type: integer
+    format: int32
+    example: 1
+
+  ControlRequestParameters:
+    type: object
+    required:
+      - chave_usuario
+      - protocolo_imagem
+      - tipo_imagem
+    properties:
+      chave_usuario:
+        type: string
+        example: 'c0000000'
+      protocolo_imagem:
+        type: integer
+        format: int64
+        example: '20191830000072472'
+      tipo_imagem:
+        type: integer
+        format: int32
+        example: 1
+
+  Response200:
+    type: object
+    properties:
+      is_spoofed:
+        type: boolean
+        example: true
+
+  Error400:
+    type: object
+    properties:
+      message:
+        type: string
+        example: 'Bad Request, wrong syntax'
+      details:
+        type: string
+        example: 'The request could not be understood by the server due to
+        malformed syntax. The client SHOULD NOT repeat the request without
+        modifications.'
+
+  Error400-1:
+    type: object
+    properties:
+      message:
+        type: string
+        example: 'Bad Request, wrong base64'
+      details:
+        type: string
+        example: 'Wrong base64 format, read antispoofing API documentation
+        in /docs for further questions.'
+
+  Error400-3:
+    type: object
+    properties:
+      message:
+        type: string
+        example: 'Bad Request, bad image'
+      details:
+        type: string
+        example: 'Error in base64 input, no image was found, read antispoofing
+        API documentation in /docs for further questions.'
+
+  Error400-4:
+    type: object
+    properties:
+      message:
+        type: string
+        example: 'Bad Request, required parameters missing'
+      details:
+        type: string
+        example: "Required parameters wasn't found, read antispoofing API
+        documentation in /docs for further questions."
+
+  Error400-5:
+    type: object
+    properties:
+      message:
+        type: string
+        example: 'Server not Found, Error connecting to remote APIs, no connection.'
+      details:
+        type: string
+        example: "Error connecting to remote APIs, read antispoofing API
+        documentation in /docs for further questions."
